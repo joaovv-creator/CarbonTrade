@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Compra e Venda de CO₂ — Protótipo</title>
+  <style>
+    :root{
+      --bg:#0b0f12; --panel:#141a1f; --muted:#8ea1b2; --accent:#26c281; --accent-2:#2ecb90; --danger:#e2574c; --ok:#38b6ff; --card:#10161b; --ring:#1f2933; --text:#e6edf3;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Helvetica Neue',Arial,'Noto Sans',sans-serif;background:linear-gradient(180deg,#0b0f12 0%, #0b1014 40%, #0c1217 100%);color:var(--text)}
+    header{position:sticky;top:0;z-index:50;background:rgba(11,15,18,.7);backdrop-filter:blur(12px);border-bottom:1px solid #202a33}
+    .wrap{max-width:1200px;margin:auto;padding:16px}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.5px}
+    .brand svg{width:28px;height:28px}
+    nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+    nav a{padding:8px 12px;border:1px solid #22303a;border-radius:999px;color:var(--muted);text-decoration:none;transition:.2s}
+    nav a:hover{border-color:#2b3b47;color:var(--text)}
+    main{max-width:1200px;margin:24px auto;display:grid;gap:16px;grid-template-columns: 1.2fr 1fr}
+    section{background:var(--panel);border:1px solid #1c252d;border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    section h2{margin:0 0 12px;font-size:18px;letter-spacing:.3px}
+    .subtitle{color:var(--muted);font-size:12px}
+    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .kpi{background:var(--card);border:1px solid #182128;border-radius:14px;padding:12px}
+    .kpi .value{font-size:22px;font-weight:700}
+    .badge{font-size:11px;color:#c2f1dd;background:#12261e;border:1px solid #204b3e;padding:2px 8px;border-radius:999px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    canvas{width:100%;height:240px;background:#0c1217;border-radius:12px;border:1px solid #172028}
+    .ring{width:140px;height:140px;display:grid;place-items:center;margin:auto}
+    .ring .label{position:absolute;text-align:center}
+    .catalogo{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .card{background:var(--card);border:1px solid #182128;border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
+    .card .row{display:flex;justify-content:space-between;align-items:center}
+    .card button{background:linear-gradient(180deg,var(--accent),var(--accent-2));color:#08130e;border:none;border-radius:10px;padding:8px 10px;font-weight:700;cursor:pointer}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+    .chip{background:#0f151a;border:1px solid #21303b;color:var(--muted);padding:6px 10px;border-radius:999px;cursor:pointer}
+    .chip.active{background:#112218;border-color:#1e5b44;color:#baf2dd}
+    table{width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden}
+    th,td{padding:10px;border-bottom:1px solid #182128;color:#cfe0ee}
+    th{text-align:left;color:#9fb4c7;background:#0f151a}
+    .paygrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .pay{background:var(--card);border:1px solid #182128;border-radius:14px;padding:12px;text-align:center}
+    .pay svg{width:42px;height:42px;margin:6px auto}
+    .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+    .legend span{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+    .dot{width:10px;height:10px;border-radius:50%}
+    .dot.green{background:var(--accent)}
+    .dot.blue{background:var(--ok)}
+    .foot{max-width:1200px;margin:8px auto 24px;color:#7f95a8;text-align:center;font-size:12px}
+    @media (max-width:960px){main{grid-template-columns:1fr} .catalogo{grid-template-columns:1fr 1fr} .kpis{grid-template-columns:1fr 1fr 1fr} .paygrid{grid-template-columns:1fr 1fr}}
+    @media (max-width:600px){.catalogo{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="brand">
+        <!-- Ícone CO2 -->
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3C7 3 3 7 3 12s4 9 9 9 9-4 9-9-4-9-9-9Z" stroke="#26c281" stroke-width="2"/><path d="M9.2 14.8c-1.55 0-2.8-1.25-2.8-2.8s1.25-2.8 2.8-2.8c.8 0 1.52.34 2.04.88" stroke="#26c281" stroke-width="2" stroke-linecap="round"/><path d="M12 9.2h2.2c1.55 0 2.8 1.25 2.8 2.8s-1.25 2.8-2.8 2.8H12" stroke="#26c281" stroke-width="2" stroke-linecap="round"/></svg>
+        <div>
+          <div style="font-size:14px;color:var(--muted)">Plataforma</div>
+          <div style="font-size:18px">Compra e Venda de Carbono</div>
+        </div>
+      </div>
+      <nav>
+        <a href="#relatorio">Relatório</a>
+        <a href="#metricas">Métricas</a>
+        <a href="#catalogo">Catálogo</a>
+        <a href="#historico">Histórico</a>
+        <a href="#veiculos">Por Veículo</a>
+        <a href="#pagamento">Pagamento</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- COMO FUNCIONA -->
+    <section id="como-funciona" style="grid-column:1/-1">
+      <h2>Como funciona a captura de CO₂ nos veículos</h2>
+      <div class="subtitle">Entenda o processo de captura diretamente no escapamento</div>
+      <img src="co2-captura.jpeg.jpeg" 
+           alt="Fluxo de captura de CO₂ no escapamento" 
+           style="width:100%;max-width:800px;display:block;margin:16px auto;border-radius:12px;border:1px solid #182128;box-shadow:0 6px 18px rgba(0,0,0,.35)">
+    </section>
+
+    <!-- RELATÓRIO EM TEMPO REAL -->
+    <section id="relatorio" style="grid-column:1/-1">
+      <h2>Relatório em tempo real do CO₂ capturado pelos caminhões</h2>
+      <div class="subtitle">Taxa de captura por minuto (kg) — dados simulados para protótipo</div>
+      <div class="legend"><span><span class="dot green"></span> Frota Total</span><span><span class="dot blue"></span> Média móvel</span></div>
+      <canvas id="realtime"></canvas>
+      <div class="kpis" style="margin-top:12px">
+        <div class="kpi">
+          <div class="subtitle">Capturado hoje</div>
+          <div class="value" id="kpiHoje">— kg</div>
+        </div>
+        <div class="kpi">
+          <div class="subtitle">Capturado (30 dias)</div>
+          <div class="value" id="kpi30">— t</div>
+        </div>
+        <div class="kpi">
+          <div class="subtitle">Caminhões ativos</div>
+          <div class="value" id="kpiTrucks">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MÉTRICAS DE DESCARBONIZAÇÃO -->
+    <section id="metricas">
+      <h2>Visualização de métricas de descarbonização cumpridas</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div style="display:flex;gap:16px;align-items:center;justify-content:center;position:relative">
+            <svg class="ring" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="52" stroke="#1b2630" stroke-width="12" fill="none"/>
+              <circle id="ringProgress" cx="60" cy="60" r="52" stroke="#26c281" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="326" stroke-dashoffset="326" transform="rotate(-90 60 60)"/>
+            </svg>
+            <div class="label" id="labelProgress" style="position:absolute;font-weight:800;font-size:22px">0%</div>
+          </div>
+          <div class="row"><span class="subtitle">Meta anual atingida</span><span class="badge">Atualiza em tempo real</span></div>
+        </div>
+        <div class="card">
+          <div class="row"><span>Emissões evitadas</span><strong id="emissoesEvitadas">— t CO₂e</strong></div>
+          <div class="row"><span>Projetos certificados</span><strong id="projetos">—</strong></div>
+          <div class="row"><span>Clientes com selo verde</span><strong id="clientesVerdes">—</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CATÁLOGO -->
+    <section id="catalogo">
+      <h2>Catálogo de carbono disponível para compra</h2>
+      <div class="filters">
+        <button class="chip active" data-filter="todos">Todos</button>
+        <button class="chip" data-filter="floresta">Floresta</button>
+        <button class="chip" data-filter="biometano">Biometano</button>
+        <button class="chip" data-filter="industrial">Industrial</button>
+        <button class="chip" data-filter="ccs">CCS</button>
+      </div>
+      <div class="catalogo" id="cardsCatalogo"></div>
+    </section>
+
+    <!-- OPÇÕES DE COMPRA -->
+    <section style="grid-column:1/-1">
+      <h2>Opção de compra em diversos formatos</h2>
+      <div class="catalogo">
+        <div class="card"><div class="row"><strong>Por tonelada</strong><span class="badge">Certificado</span></div><div class="subtitle">Créditos em lotes fechados</div><button onclick="alert('Adicionado: Tonelada')">Selecionar</button></div>
+        <div class="card"><div class="row"><strong>Por quilograma</strong><span class="badge">Micro-compra</span></div><div class="subtitle">Ideal para testes e doações</div><button onclick="alert('Adicionado: Quilograma')">Selecionar</button></div>
+        <div class="card"><div class="row"><strong>Por assinatura</strong><span class="badge">Mensal</span></div><div class="subtitle">Compra recorrente automática</div><button onclick="alert('Adicionado: Assinatura')">Selecionar</button></div>
+      </div>
+    </section>
+
+    <!-- HISTÓRICO DE COMPRAS -->
+    <section id="historico" style="grid-column:1/-1">
+      <h2>Histórico de compras</h2>
+      <table id="tabelaHistorico">
+        <thead><tr><th>Data</th><th>Cliente</th><th>Tipo</th><th>Quantidade</th><th>Preço</th><th>Status</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- POR VEÍCULO -->
+    <section id="veiculos">
+      <h2>Captura de CO₂ por veículo</h2>
+      <table id="tabelaVeiculos">
+        <thead><tr><th>Placa</th><th>Modelo</th><th>Última leitura</th><th>Captura (kg/dia)</th><th>Status</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- ÁREA DE PAGAMENTO -->
+    <section id="pagamento">
+      <h2>Área de pagamento</h2>
+      <div class="paygrid">
+        <div class="pay"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="16" rx="2" stroke="#26c281" stroke-width="2"/><path d="M7 10h10M7 14h6" stroke="#26c281" stroke-width="2" stroke-linecap="round"/></svg><div>Pix</div><button class="chip active" onclick="pagar('Pix')">Pagar</button></div>
+        <div class="pay"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#26c281" stroke-width="2"/><path d="M3 10h18" stroke="#26c281" stroke-width="2"/></svg><div>Boleto</div><button class="chip active" onclick="pagar('Boleto')">Gerar</button></div>
+        <div class="pay"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="6" width="20" height="12" rx="2" stroke="#26c281" stroke-width="2"/><path d="M6 10h6M6 14h3" stroke="#26c281" stroke-width="2"/></svg><div>Cartão</div><button class="chip active" onclick="pagar('Cartão')">Continuar</button></div>
+        <div class="pay"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 3h10l4 6v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9l4-6Z" stroke="#26c281" stroke-width="2"/><path d="M9 13h6M9 17h6M9 9h6" stroke="#26c281" stroke-width="2"/></svg><div>Outros</div><button class="chip active" onclick="pagar('Outro')">Opções</button></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="foot">Protótipo estático em HTML/CSS/JS — use como base para implementação real (APIs, banco, gateways).</div>
+
+<script>
+// ===== Dados simulados =====
+const state = {
+  series: Array.from({length:120}, (_,i)=> ({
+    t: i,
+    v: 40 + Math.sin(i/5)*8 + Math.random()*6 + i*0.1
+  })),
+  hoje: 0,
+};
+
+function desenharGrafico(){
+  const c = document.getElementById('realtime');
+  const ctx = c.getContext('2d');
+  const w = c.clientWidth, h = c.clientHeight;
+  const dpr = window.devicePixelRatio || 1; c.width=w*dpr; c.height=h*dpr; ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle = '#15202a'; ctx.lineWidth = 1;
+  for(let y=0;y<h;y+=40){ctx.beginPath();ctx.moveTo(0,y+.5);ctx.lineTo(w,y+.5);ctx.stroke();}
+  const
